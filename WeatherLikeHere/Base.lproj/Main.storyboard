@@ -1,24 +1,75 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="13122.16" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="BYZ-38-t0r">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="17506" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="BYZ-38-t0r">
+    <device id="retina6_1" orientation="portrait" appearance="light"/>
     <dependencies>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="13104.12"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="17505"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <scenes>
         <!--View Controller-->
         <scene sceneID="tne-QT-ifu">
             <objects>
-                <viewController id="BYZ-38-t0r" customClass="ViewController" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController id="BYZ-38-t0r" customClass="ViewController" customModule="WeatherLikeHere" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="8bC-Xf-vdC">
-                        <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                        <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                        <color key="backgroundColor" xcode11CocoaTouchSystemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
+                        <subviews>
+                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="IMG_20200531_195331.jpg" translatesAutoresizingMaskIntoConstraints="NO" id="LPt-oY-m1j">
+                                <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
+                            </imageView>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="45d-se-yBr">
+                                <rect key="frame" x="361" y="64" width="33" height="33"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="33" id="WOv-ms-lp9"/>
+                                    <constraint firstAttribute="height" constant="33" id="ogb-ta-chV"/>
+                                </constraints>
+                                <state key="normal" image="Настройки2.png"/>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="QEk-Nv-RGO">
+                                <rect key="frame" x="179.5" y="787" width="55" height="55"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="55" id="aqx-So-FHB"/>
+                                    <constraint firstAttribute="height" constant="55" id="hGV-d5-F4b"/>
+                                </constraints>
+                                <state key="normal" image="Add button.png"/>
+                                <connections>
+                                    <action selector="addPhoto:" destination="BYZ-38-t0r" eventType="touchUpInside" id="EqO-Ug-7ys"/>
+                                </connections>
+                            </button>
+                        </subviews>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                        <constraints>
+                            <constraint firstItem="45d-se-yBr" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" constant="20" id="3dX-WR-Y3a"/>
+                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="45d-se-yBr" secondAttribute="trailing" constant="20" id="Jmr-aD-ZL6"/>
+                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="LPt-oY-m1j" secondAttribute="trailing" id="eag-wt-xmO"/>
+                            <constraint firstItem="LPt-oY-m1j" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" id="ftp-jG-BNw"/>
+                            <constraint firstItem="QEk-Nv-RGO" firstAttribute="centerX" secondItem="LPt-oY-m1j" secondAttribute="centerX" id="oUb-Bo-cHt"/>
+                            <constraint firstAttribute="bottomMargin" secondItem="LPt-oY-m1j" secondAttribute="bottom" constant="-34" id="pEG-7K-vF1"/>
+                            <constraint firstItem="QEk-Nv-RGO" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="130" id="rIq-7e-3C8"/>
+                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="bottom" secondItem="QEk-Nv-RGO" secondAttribute="bottom" constant="20" id="xhD-g2-Blu"/>
+                            <constraint firstItem="LPt-oY-m1j" firstAttribute="top" secondItem="8bC-Xf-vdC" secondAttribute="topMargin" constant="-44" id="xoE-JH-XJs"/>
+                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="QEk-Nv-RGO" secondAttribute="trailing" constant="130" id="y1f-Rd-PGV"/>
+                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="45d-se-yBr" secondAttribute="trailing" constant="20" id="yDr-dw-0V0"/>
+                        </constraints>
                     </view>
+                    <connections>
+                        <outlet property="imageArea" destination="LPt-oY-m1j" id="Ogb-KE-2vG"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
             </objects>
+            <point key="canvasLocation" x="-198.55072463768118" y="87.053571428571431"/>
         </scene>
     </scenes>
+    <resources>
+        <image name="Add button.png" width="55" height="55"/>
+        <image name="IMG_20200531_195331.jpg" width="1063" height="1416"/>
+        <image name="Настройки2.png" width="27" height="27"/>
+        <systemColor name="systemBackgroundColor">
+            <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+        </systemColor>
+    </resources>
 </document>
