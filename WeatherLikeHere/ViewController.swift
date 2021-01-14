@@ -9,19 +9,55 @@ import UIKit
 import Firebase
 import FirebaseAuth
 import FirebaseStorage
+import MapKit
 
 
 
 
-class ViewController: UIViewController {
+class ViewController: UIViewController, CLLocationManagerDelegate {
 
+    
+    @IBOutlet weak var latitudeTF: UILabel!
+    @IBOutlet weak var longitudeTF: UILabel!
+    
+    
+    
+    
     @IBOutlet weak var imageArea: UIImageView!
+    
+    //let locationManager = CLLocationManager()
+
+    var locationManager:CLLocationManager!
+    
+    
+    
+    
     
     override func viewDidLoad() {
         super.viewDidLoad()
         let authUser = authAnonim()
         print("Результат авторизации viewDidLoad: \(authUser)")
     
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        
+        locationManager = CLLocationManager()
+            locationManager.delegate = self
+            locationManager.desiredAccuracy = kCLLocationAccuracyBest
+            locationManager.requestAlwaysAuthorization()
+
+//            if CLLocationManager.locationServicesEnabled(){
+//                locationManager.startUpdatingLocation()
+//            }
+        
+        
+        
+        checkLocationEnabled()
+        checkAutorization()
+        //test()
+        
     }
 
     @IBAction func addPhoto(_ sender: Any) {  //Выбираем фотографию
@@ -32,6 +68,115 @@ class ViewController: UIViewController {
         present(imagePickerController, animated: true, completion: nil)
         //savePhoto()
     }
+    
+    
+    //Проверяем включена ли на устройстве геолокация
+    func checkLocationEnabled() {
+        if CLLocationManager.locationServicesEnabled() {
+            // Вот тут нужно вызвать функцию или что-то написать, если разрешение на геолокацию есть
+            print("Геолокация разрешена")
+            
+        } else {
+            let alert = UIAlertController(title: "Отключена функция геолокации", message: "Включить?", preferredStyle: .alert)
+            
+            let settingsAction = UIAlertAction(title: "Настройки", style: .default) { (alert) in
+                if let url = URL(string: "App-Prefs:root=LOCATION_SERVICES") {
+                    UIApplication.shared.open(url, options: [:], completionHandler: nil)
+                }
+            }
+            let cancelAction = UIAlertAction(title: "Отмена", style: .cancel, handler: nil)
+            
+            alert.addAction(settingsAction)
+            alert.addAction(cancelAction)
+            
+            present(alert, animated: true, completion: nil)
+            
+        }
+    }
+    
+    func test(){
+        var locationManager = CLLocationManager()
+            locationManager.delegate = self
+            locationManager.desiredAccuracy = kCLLocationAccuracyBest
+            locationManager.requestAlwaysAuthorization()
+
+            if CLLocationManager.locationServicesEnabled(){
+                locationManager.startUpdatingLocation()
+            }
+    }
+    
+    //Проверяем есть ли у нашего приложения разрешения на получение геолокации
+    func checkAutorization(){
+        switch CLLocationManager.authorizationStatus() {
+        case .authorizedAlways:
+            break
+        case .authorizedWhenInUse:
+            //вот здесь мы понимаем что разрешение есть и можно что-то написать
+            print("Разрешение на геолокацию для приложеня есть")
+            
+            //Пробую получить координаты
+            locationManager.startUpdatingLocation()
+            
+          
+            
+            break
+        case .notDetermined:
+            print(".notDetermined")
+            //Вот здесь мы должны запросить разрешение
+            locationManager.requestWhenInUseAuthorization()
+            //test()
+           
+            
+            
+            
+            break
+        case .restricted:
+            print(".restricted")
+            break
+        case .denied:
+            print(".denied")
+            let alert = UIAlertController(title: "Отсутсвует разрешение на геолокацию", message: "Включить?", preferredStyle: .alert)
+            
+            let settingsAction = UIAlertAction(title: "Настройки", style: .default) { (alert) in
+                if let url = URL(string: UIApplication.openSettingsURLString) {
+                    UIApplication.shared.open(url, options: [:], completionHandler: nil)
+                }
+            }
+            let cancelAction = UIAlertAction(title: "Отмена", style: .cancel, handler: nil)
+            
+            alert.addAction(settingsAction)
+            alert.addAction(cancelAction)
+            
+            present(alert, animated: true, completion: nil)
+        }
+        
+    }
+    
+    
+    
+    //Под вопросом!!!!
+    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+            let userLocation:CLLocation = locations[0] as CLLocation
+
+            // Call stopUpdatingLocation() to stop listening for location updates,
+            // other wise this function will be called every time when user location changes.
+
+           // manager.stopUpdatingLocation()
+
+            print("user latitude = \(userLocation.coordinate.latitude)")
+            latitudeTF.text = String(userLocation.coordinate.latitude)
+            print("user longitude = \(userLocation.coordinate.longitude)")
+            longitudeTF.text = String(userLocation.coordinate.longitude)
+    }
+
+    func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
+        print("Error \(error)")
+    }
+    //Конец под вопросом
+
+    
+    
+    
     
     func authAnonim() -> String {
         let uid = ""
@@ -63,7 +208,6 @@ class ViewController: UIViewController {
             }
             print("Результат авторизации: \(authResult!)")
             
-            
             if Auth.auth().currentUser != nil {
               // User is signed in.
               // ...
@@ -73,82 +217,21 @@ class ViewController: UIViewController {
               // ...
                 print("currentUser = :(")
             }
-            
-            
-            
-            
-            
-        
-            
-            
-            
-            
-            
-           //Вот теперь пытаемся записть в БД
-            
-//            var ref: DocumentReference? = nil
-//            let db = Firestore.firestore()
-//            ref = db.collection("users").addDocument(data: [
-//                "first": "Ada",
-//                "last": "Lovelace",
-//                "born": 1815
-//            ]) { err in
-//                if let err = err {
-//                    print("Error adding document: \(err)")
-//                } else {
-//                    print("Document added with ID: \(ref!.documentID)")
-//                }
-//            }””
-            
-            
-            
-            
-            
-            
-            
-            
-//            DispatchQueue.main.async {
-//                guard let user = authResult?.user else { return }
-//                let isAnonymous = user.isAnonymous  // true
-//                let uid = user.uid
-//                print("Результат авторизации 2: \(uid)")
-//            }
-        
-        
-        
         }
-        
-        
-        
-        
-        
-        
-//        var ref: DocumentReference? = nil
-//        let db = Firestore.firestore()
-//        ref = db.collection("users").addDocument(data: [
-//            "first": "Ada",
-//            "last": "Lovelace",
-//            "born": 1815
-//        ]) { err in
-//            if let err = err {
-//                print("Error adding document: \(err)")
-//            } else {
-//                print("Document added with ID: \(ref!.documentID)")
-//            }
-//        }
-
-        
         return true
     } //END
     
     
     func saveData(url: String) -> () {
         //
+        
+        locationManager.stopUpdatingLocation()
+        
         var refbd: DocumentReference? = nil
         let db = Firestore.firestore()
         refbd = db.collection("users").addDocument(data: [
-            "first": "Ada",
-            "last": "Lovelace",
+            "longitude": Double(longitudeTF.text!),
+            "latitude": Double(latitudeTF.text!),
             "born": 1815,
             "dateExample": Timestamp(date: Date()),
             "url": url
@@ -241,3 +324,5 @@ extension ViewController: UINavigationControllerDelegate, UIImagePickerControlle
         
     }
 }
+
+
