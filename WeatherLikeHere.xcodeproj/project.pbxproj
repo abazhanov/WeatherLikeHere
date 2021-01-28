@@ -26,6 +26,9 @@
 		FA417CE725A084C30074BCB3 /* Add button.png in Resources */ = {isa = PBXBuildFile; fileRef = FA417CE625A084C30074BCB3 /* Add button.png */; };
 		FA97E1DD25A1C07300CDC4A0 /* Настройки2.png in Resources */ = {isa = PBXBuildFile; fileRef = FA97E1DC25A1C07300CDC4A0 /* Настройки2.png */; };
 		FA97E1E225A1C0A300CDC4A0 /* Настройки3.png in Resources */ = {isa = PBXBuildFile; fileRef = FA97E1E125A1C0A300CDC4A0 /* Настройки3.png */; };
+		FAF0057025C32AFD00F79AA6 /* Weather.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAF0056E25C32AFC00F79AA6 /* Weather.swift */; };
+		FAF0057125C32AFD00F79AA6 /* WeatherMain.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAF0056F25C32AFD00F79AA6 /* WeatherMain.swift */; };
+		FAF0057625C32B2E00F79AA6 /* RequestManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAF0057525C32B2E00F79AA6 /* RequestManager.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -77,6 +80,9 @@
 		FA417CE625A084C30074BCB3 /* Add button.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Add button.png"; sourceTree = "<group>"; };
 		FA97E1DC25A1C07300CDC4A0 /* Настройки2.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Настройки2.png"; sourceTree = "<group>"; };
 		FA97E1E125A1C0A300CDC4A0 /* Настройки3.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Настройки3.png"; sourceTree = "<group>"; };
+		FAF0056E25C32AFC00F79AA6 /* Weather.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Weather.swift; sourceTree = "<group>"; };
+		FAF0056F25C32AFD00F79AA6 /* WeatherMain.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WeatherMain.swift; sourceTree = "<group>"; };
+		FAF0057525C32B2E00F79AA6 /* RequestManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RequestManager.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -155,6 +161,7 @@
 		FA417C9425A04B790074BCB3 /* WeatherLikeHere */ = {
 			isa = PBXGroup;
 			children = (
+				FAF0056A25C32A7B00F79AA6 /* Models */,
 				FA417CD025A04FF50074BCB3 /* Image */,
 				FA417C9525A04B790074BCB3 /* AppDelegate.swift */,
 				FA417C9725A04B790074BCB3 /* SceneDelegate.swift */,
@@ -198,6 +205,40 @@
 				FA417CD925A05E1A0074BCB3 /* Настройки.png */,
 			);
 			path = Image;
+			sourceTree = "<group>";
+		};
+		FAF0056A25C32A7B00F79AA6 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				FAF0056C25C32A8F00F79AA6 /* Manager */,
+				FAF0056B25C32A8500F79AA6 /* DataModels */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		FAF0056B25C32A8500F79AA6 /* DataModels */ = {
+			isa = PBXGroup;
+			children = (
+				FAF0056E25C32AFC00F79AA6 /* Weather.swift */,
+				FAF0056F25C32AFD00F79AA6 /* WeatherMain.swift */,
+			);
+			path = DataModels;
+			sourceTree = "<group>";
+		};
+		FAF0056C25C32A8F00F79AA6 /* Manager */ = {
+			isa = PBXGroup;
+			children = (
+				FAF0056D25C32A9C00F79AA6 /* Request */,
+			);
+			path = Manager;
+			sourceTree = "<group>";
+		};
+		FAF0056D25C32A9C00F79AA6 /* Request */ = {
+			isa = PBXGroup;
+			children = (
+				FAF0057525C32B2E00F79AA6 /* RequestManager.swift */,
+			);
+			path = Request;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -448,7 +489,10 @@
 				FA417C9A25A04B790074BCB3 /* ViewController.swift in Sources */,
 				FA417CA025A04B790074BCB3 /* WeatherLikeHere.xcdatamodeld in Sources */,
 				FA417C9625A04B790074BCB3 /* AppDelegate.swift in Sources */,
+				FAF0057125C32AFD00F79AA6 /* WeatherMain.swift in Sources */,
+				FAF0057625C32B2E00F79AA6 /* RequestManager.swift in Sources */,
 				FA417C9825A04B790074BCB3 /* SceneDelegate.swift in Sources */,
+				FAF0057025C32AFD00F79AA6 /* Weather.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -10,7 +10,10 @@ import Firebase
 import FirebaseAuth
 import FirebaseStorage
 import MapKit
-
+import Moya
+import ObjectMapper
+import Moya_ObjectMapper
+import Alamofire
 
 
 
@@ -19,6 +22,8 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
     
     @IBOutlet weak var latitudeTF: UILabel!
     @IBOutlet weak var longitudeTF: UILabel!
+    @IBOutlet weak var tempTF: UILabel!
+    @IBOutlet weak var cityTF: UILabel!
     
     
     
@@ -29,7 +34,8 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
 
     var locationManager:CLLocationManager!
     
-    
+    var w: Weather? = nil
+    var weatherIsGet = 0;
     
     
     
@@ -37,6 +43,8 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
         super.viewDidLoad()
         let authUser = authAnonim()
         print("Результат авторизации viewDidLoad: \(authUser)")
+        
+        //getWeather()
     
     }
     
@@ -47,20 +55,13 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
             locationManager.delegate = self
             locationManager.desiredAccuracy = kCLLocationAccuracyBest
             locationManager.requestAlwaysAuthorization()
-
-//            if CLLocationManager.locationServicesEnabled(){
-//                locationManager.startUpdatingLocation()
-//            }
         
-        
-        
-        checkLocationEnabled()
-        checkAutorization()
-        //test()
-        
+            checkLocationEnabled()
+            checkAutorization()
     }
 
     @IBAction func addPhoto(_ sender: Any) {  //Выбираем фотографию
+        locationManager.startUpdatingLocation()
         let imagePickerController = UIImagePickerController()
         imagePickerController.delegate = self
         imagePickerController.sourceType = .photoLibrary
@@ -68,13 +69,14 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
         present(imagePickerController, animated: true, completion: nil)
         //savePhoto()
     }
-    
-    
+
     //Проверяем включена ли на устройстве геолокация
     func checkLocationEnabled() {
         if CLLocationManager.locationServicesEnabled() {
             // Вот тут нужно вызвать функцию или что-то написать, если разрешение на геолокацию есть
             print("Геолокация разрешена")
+            //Пробую получить координаты
+            locationManager.startUpdatingLocation()
             
         } else {
             let alert = UIAlertController(title: "Отключена функция геолокации", message: "Включить?", preferredStyle: .alert)
@@ -117,18 +119,12 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
             //Пробую получить координаты
             locationManager.startUpdatingLocation()
             
-          
-            
             break
         case .notDetermined:
             print(".notDetermined")
             //Вот здесь мы должны запросить разрешение
             locationManager.requestWhenInUseAuthorization()
             //test()
-           
-            
-            
-            
             break
         case .restricted:
             print(".restricted")
@@ -152,8 +148,6 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
         
     }
     
-    
-    
     //Под вопросом!!!!
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
             let userLocation:CLLocation = locations[0] as CLLocation
@@ -167,6 +161,18 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
             latitudeTF.text = String(userLocation.coordinate.latitude)
             print("user longitude = \(userLocation.coordinate.longitude)")
             longitudeTF.text = String(userLocation.coordinate.longitude)
+        
+            //Получили координаты, теперь можно и погоду запросить если только уже не запрашивали
+            if weatherIsGet==0 {
+                getWeather()
+                weatherIsGet = 1
+            }
+        
+        
+        
+        
+        
+        
     }
 
     func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
@@ -323,6 +329,48 @@ extension ViewController: UINavigationControllerDelegate, UIImagePickerControlle
         }
         
     }
+
+
+    // MARK 1 - Здесь реализован вызов JSON с помощью Moya
+        private func getWeather(){
+                
+            let provider = MoyaProvider<RequestManager>(plugins:[NetworkLoggerPlugin()])
+                
+                provider.request(.getWheather) { result in
+                    switch result {
+                    case .success(let response):
+                        //self.refreshControl.endRefreshing()
+                        //self.isLoading = false
+                        
+                        do {
+                            try print(response.mapJSON())
+                        } catch {
+                            print(error)
+                        }
+                        if let json = (try? response.mapJSON()) as? [String : Any] {
+                            let wheather = Mapper<Weather>().map(JSON: json)
+                            self.w =  wheather
+                            //self.mergeDataSource(specializations: specializations)
+                            print("Wheather = \(wheather)")
+                            print(wheather?.id ?? "Нету тут ничего")
+                            print("Weater.temp", wheather?.weatherMain?.temp ?? "Пусто")
+                            let temp = wheather?.weatherMain?.temp ?? 0
+                            self.tempTF.text = String("\(temp) C")
+                            self.cityTF.text = wheather?.nameCity
+
+                        }
+                    case .failure(let error):
+                        //self.isLoading = false
+                        //self.refreshControl.endRefreshing()
+                        print(error.errorDescription ?? "Unknown error")
+                    }
+                }
+            }
+        // END MARK 1
 }
+
+
+
+
 
 

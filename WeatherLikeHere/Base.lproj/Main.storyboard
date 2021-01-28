@@ -52,17 +52,38 @@
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="--- C" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="y8P-wY-JUv">
+                                <rect key="frame" x="20" y="64" width="128" height="69.5"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="58"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="---" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="PUe-Gb-D7S">
+                                <rect key="frame" x="20" y="160" width="374" height="44"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="374" id="5tL-RW-s8L"/>
+                                    <constraint firstAttribute="height" constant="44" id="E0R-B9-HFO"/>
+                                </constraints>
+                                <fontDescription key="fontDescription" type="system" pointSize="40"/>
+                                <nil key="textColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         <constraints>
                             <constraint firstItem="45d-se-yBr" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" constant="20" id="3dX-WR-Y3a"/>
+                            <constraint firstItem="PUe-Gb-D7S" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="20" id="EpR-cR-mt9"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="45d-se-yBr" secondAttribute="trailing" constant="20" id="Jmr-aD-ZL6"/>
+                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="PUe-Gb-D7S" secondAttribute="trailing" constant="20" id="Ku0-V8-rh3"/>
+                            <constraint firstItem="y8P-wY-JUv" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" constant="20" id="Qcv-84-ivp"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="LPt-oY-m1j" secondAttribute="trailing" id="eag-wt-xmO"/>
                             <constraint firstItem="LPt-oY-m1j" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" id="ftp-jG-BNw"/>
+                            <constraint firstItem="y8P-wY-JUv" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="20" id="ldP-KQ-fXm"/>
                             <constraint firstItem="QEk-Nv-RGO" firstAttribute="centerX" secondItem="LPt-oY-m1j" secondAttribute="centerX" id="oUb-Bo-cHt"/>
                             <constraint firstAttribute="bottomMargin" secondItem="LPt-oY-m1j" secondAttribute="bottom" constant="-34" id="pEG-7K-vF1"/>
                             <constraint firstItem="QEk-Nv-RGO" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="130" id="rIq-7e-3C8"/>
+                            <constraint firstItem="PUe-Gb-D7S" firstAttribute="top" secondItem="y8P-wY-JUv" secondAttribute="bottom" constant="26.5" id="vx1-4r-5cj"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="bottom" secondItem="QEk-Nv-RGO" secondAttribute="bottom" constant="20" id="xhD-g2-Blu"/>
                             <constraint firstItem="LPt-oY-m1j" firstAttribute="top" secondItem="8bC-Xf-vdC" secondAttribute="topMargin" constant="-44" id="xoE-JH-XJs"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="QEk-Nv-RGO" secondAttribute="trailing" constant="130" id="y1f-Rd-PGV"/>
@@ -70,9 +91,11 @@
                         </constraints>
                     </view>
                     <connections>
+                        <outlet property="cityTF" destination="PUe-Gb-D7S" id="1oK-U3-fya"/>
                         <outlet property="imageArea" destination="LPt-oY-m1j" id="Ogb-KE-2vG"/>
                         <outlet property="latitudeTF" destination="4Gj-4K-Ra9" id="kjW-ij-ryI"/>
                         <outlet property="longitudeTF" destination="2VH-wk-jIH" id="gge-ah-rzb"/>
+                        <outlet property="tempTF" destination="y8P-wY-JUv" id="Lqp-oh-Hpo"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
