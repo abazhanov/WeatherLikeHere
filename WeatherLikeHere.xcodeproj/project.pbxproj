@@ -29,6 +29,7 @@
 		FAF0057025C32AFD00F79AA6 /* Weather.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAF0056E25C32AFC00F79AA6 /* Weather.swift */; };
 		FAF0057125C32AFD00F79AA6 /* WeatherMain.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAF0056F25C32AFD00F79AA6 /* WeatherMain.swift */; };
 		FAF0057625C32B2E00F79AA6 /* RequestManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAF0057525C32B2E00F79AA6 /* RequestManager.swift */; };
+		FAF005BC25C4424300F79AA6 /* WeatherWeather.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAF005BB25C4424300F79AA6 /* WeatherWeather.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -83,6 +84,7 @@
 		FAF0056E25C32AFC00F79AA6 /* Weather.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Weather.swift; sourceTree = "<group>"; };
 		FAF0056F25C32AFD00F79AA6 /* WeatherMain.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WeatherMain.swift; sourceTree = "<group>"; };
 		FAF0057525C32B2E00F79AA6 /* RequestManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RequestManager.swift; sourceTree = "<group>"; };
+		FAF005BB25C4424300F79AA6 /* WeatherWeather.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeatherWeather.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -221,6 +223,7 @@
 			children = (
 				FAF0056E25C32AFC00F79AA6 /* Weather.swift */,
 				FAF0056F25C32AFD00F79AA6 /* WeatherMain.swift */,
+				FAF005BB25C4424300F79AA6 /* WeatherWeather.swift */,
 			);
 			path = DataModels;
 			sourceTree = "<group>";
@@ -493,6 +496,7 @@
 				FAF0057625C32B2E00F79AA6 /* RequestManager.swift in Sources */,
 				FA417C9825A04B790074BCB3 /* SceneDelegate.swift in Sources */,
 				FAF0057025C32AFD00F79AA6 /* Weather.swift in Sources */,
+				FAF005BC25C4424300F79AA6 /* WeatherWeather.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

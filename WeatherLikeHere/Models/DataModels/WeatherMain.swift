@@ -17,7 +17,7 @@ extension WeatherMain: Mappable{
 class WeatherMain: NSObject {
     
     var temp: Double?
-  
+    
     required init?(map: Map) { super.init() }
 
 }

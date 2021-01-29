@@ -24,6 +24,7 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
     @IBOutlet weak var longitudeTF: UILabel!
     @IBOutlet weak var tempTF: UILabel!
     @IBOutlet weak var cityTF: UILabel!
+    @IBOutlet weak var imageViewIconWeather: UIImageView!
     
     
     
@@ -34,18 +35,14 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
 
     var locationManager:CLLocationManager!
     
-    var w: Weather? = nil
-    var weatherIsGet = 0;
-    
-    
+    var w: Weather? = nil //Глобальная перменная для объекта Погоды
+    var weatherIsGet = 0; //Эта переменная 0 или 1, говорит о том, что 0 - запрос на погоду не сделал, 1 - сделан
     
     override func viewDidLoad() {
         super.viewDidLoad()
         let authUser = authAnonim()
         print("Результат авторизации viewDidLoad: \(authUser)")
-        
         //getWeather()
-    
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -96,16 +93,16 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
         }
     }
     
-    func test(){
-        var locationManager = CLLocationManager()
-            locationManager.delegate = self
-            locationManager.desiredAccuracy = kCLLocationAccuracyBest
-            locationManager.requestAlwaysAuthorization()
-
-            if CLLocationManager.locationServicesEnabled(){
-                locationManager.startUpdatingLocation()
-            }
-    }
+//    func test(){
+//        var locationManager = CLLocationManager()
+//            locationManager.delegate = self
+//            locationManager.desiredAccuracy = kCLLocationAccuracyBest
+//            locationManager.requestAlwaysAuthorization()
+//
+//            if CLLocationManager.locationServicesEnabled(){
+//                locationManager.startUpdatingLocation()
+//            }
+//    }
     
     //Проверяем есть ли у нашего приложения разрешения на получение геолокации
     func checkAutorization(){
@@ -148,7 +145,7 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
         
     }
     
-    //Под вопросом!!!!
+    //Вот здесь я получаю координа GPS
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
             let userLocation:CLLocation = locations[0] as CLLocation
 
@@ -164,26 +161,16 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
         
             //Получили координаты, теперь можно и погоду запросить если только уже не запрашивали
             if weatherIsGet==0 {
-                getWeather()
+                getWeather(lat: userLocation.coordinate.latitude, lon: userLocation.coordinate.longitude)
                 weatherIsGet = 1
             }
-        
-        
-        
-        
-        
-        
     }
 
     func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
         print("Error \(error)")
     }
-    //Конец под вопросом
-
-    
-    
-    
-    
+    //Конец "Вот здесь я получаю координа GPS"
+   
     func authAnonim() -> String {
         let uid = ""
         
@@ -227,9 +214,12 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
         return true
     } //END
     
-    
+    // Здесь записываем в БД данные: координаты, температуру, URL картинки и т.д.
     func saveData(url: String) -> () {
         //
+        
+        //print("tempTF.text = \(tempTF.text!)")
+        let temp = w?.weatherMain?.temp
         
         locationManager.stopUpdatingLocation()
         
@@ -240,6 +230,7 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
             "latitude": Double(latitudeTF.text!),
             "born": 1815,
             "dateExample": Timestamp(date: Date()),
+            "temp": temp,
             "url": url
         ]) { err in
             if let err = err {
@@ -249,14 +240,6 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
             }
         }
     }
-    
-
-    
-    
-    
-    
-    
-
 } //END MAIN CLASS
 
 // MARK: - UIImagePickerControllerDelegate
@@ -292,7 +275,6 @@ extension ViewController: UINavigationControllerDelegate, UIImagePickerControlle
      
                 guard let imageData = image.jpegData(compressionQuality: 0.4) else { return }
                 
-                
                 let metadata = StorageMetadata()
                 metadata.contentType = "image/jpeg"
                 
@@ -310,38 +292,24 @@ extension ViewController: UINavigationControllerDelegate, UIImagePickerControlle
                         }
                         //completion(.success(url))
                         print("Картинка записалась. URL: \(url.absoluteString)")
+                        
+                        // Фото записалось, теперь записываем в БД данные по этой картинке
                         self.saveData(url: url.absoluteString)
-                        
-                        
                     }
                 }
-                
-                
-                 
-               
-                 
-                
-                
-                
-                
-                
             }
         }
-        
     }
 
 
-    // MARK 1 - Здесь реализован вызов JSON с помощью Moya
-        private func getWeather(){
+    // MARK 1 - Здесь реализован вызов JSON от OpenWeatherMap.com с помощью Moya
+    private func getWeather(lat: Double, lon:Double){
                 
-            let provider = MoyaProvider<RequestManager>(plugins:[NetworkLoggerPlugin()])
+        let provider = MoyaProvider<RequestManager>(plugins:[NetworkLoggerPlugin()])
                 
-                provider.request(.getWheather) { result in
+        provider.request(.getWheather(lat: lat, lon: lon)) { result in
                     switch result {
                     case .success(let response):
-                        //self.refreshControl.endRefreshing()
-                        //self.isLoading = false
-                        
                         do {
                             try print(response.mapJSON())
                         } catch {
@@ -354,19 +322,46 @@ extension ViewController: UINavigationControllerDelegate, UIImagePickerControlle
                             print("Wheather = \(wheather)")
                             print(wheather?.id ?? "Нету тут ничего")
                             print("Weater.temp", wheather?.weatherMain?.temp ?? "Пусто")
-                            let temp = wheather?.weatherMain?.temp ?? 0
+                            let temp = lroundf(Float(wheather?.weatherMain?.temp ?? 0))
                             self.tempTF.text = String("\(temp) C")
                             self.cityTF.text = wheather?.nameCity
-
+                            
+                            guard let weatherIcon = wheather?.weatherWeather?[0].icon else {return} //Обращение идет к первому элементу массива, а в жтом массиве лежит словарь из JSON, поэтому мы не останавливаемся на элементе массива, апродолжаем проваливаться дальше через точку, т.е. [0].ключ из JSON
+                            print("WheatherIcon = \(weatherIcon)")
+                            self.getIconWeather(partURL: weatherIcon)
                         }
                     case .failure(let error):
-                        //self.isLoading = false
-                        //self.refreshControl.endRefreshing()
                         print(error.errorDescription ?? "Unknown error")
                     }
                 }
             }
         // END MARK 1
+    
+    
+    
+    
+    //Получаю иконку погоды
+    private func getIconWeather(partURL: String) {
+        
+        guard let url = URL(string: "http://openweathermap.org/img/wn/\(partURL)@2x.png") else {return}
+        print("URL = \(url)")
+        let session = URLSession.shared
+    
+        session.dataTask(with: url) { (data, response, error) in
+            if let date = data, let image = UIImage(data: date) {
+                DispatchQueue.main.async {
+                    //self.activitiIndicator.stopAnimating()
+                    self.imageViewIconWeather.image = image
+                }
+            }
+        }.resume()
+    }
+    
+    //Конец иконки погоды
+    
+    
+    
+    
 }
 
 

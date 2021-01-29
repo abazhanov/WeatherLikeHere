@@ -9,7 +9,7 @@ import Foundation
 import Moya
 
 enum RequestManager{
-    case getWheather
+    case getWheather(lat: Double, lon:Double)
 }
 
 extension RequestManager: TargetType {
@@ -51,10 +51,13 @@ extension RequestManager: TargetType {
     
     var parameters: [String: Any]? {
         switch self {
-        case .getWheather:
+        case .getWheather(lat: let lat, lon: let lon):
             var params = [String: Any]()
            
-            params = ["lat":"56.326887", "lon":"44.005986", "appid":"a6c40d5ab6bb6b87ea73272d831fe569", "units":"metric", "lang":"ru"]
+            //params = ["lat":"56.326887", "lon":"44.005986", "appid":"a6c40d5ab6bb6b87ea73272d831fe569", "units":"metric", "lang":"ru"]
+            let lat1 = String(lat)
+            let lon1 = String(lon)
+            params = ["lat":"\(lat1)", "lon":"\(lon1)", "appid":"a6c40d5ab6bb6b87ea73272d831fe569", "units":"metric", "lang":"ru"]
             
             return params
         }
