@@ -116,7 +116,8 @@
                     </view>
                     <connections>
                         <outlet property="cityTF" destination="PUe-Gb-D7S" id="1oK-U3-fya"/>
-                        <outlet property="imageArea" destination="LPt-oY-m1j" id="Ogb-KE-2vG"/>
+                        <outlet property="imageArea" destination="LPt-oY-m1j" id="f2C-LC-GGt"/>
+                        <outlet property="imageAreaPicture" destination="LPt-oY-m1j" id="cJn-aK-H9s"/>
                         <outlet property="imageViewIconWeather" destination="nEc-ak-WlT" id="Tov-cm-Fen"/>
                         <outlet property="latitudeTF" destination="4Gj-4K-Ra9" id="kjW-ij-ryI"/>
                         <outlet property="longitudeTF" destination="2VH-wk-jIH" id="gge-ah-rzb"/>

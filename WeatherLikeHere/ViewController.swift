@@ -26,6 +26,7 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
     @IBOutlet weak var cityTF: UILabel!
     @IBOutlet weak var imageViewIconWeather: UIImageView!
     
+    @IBOutlet weak var imageAreaPicture: UIImageView!
     
     
     
@@ -219,8 +220,8 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
         //
         
         //print("tempTF.text = \(tempTF.text!)")
-        let temp = w?.weatherMain?.temp
-        
+        let temp = lroundf(Float(w?.weatherMain?.temp ?? 0))
+        //let temp = lroundf(Float(wheather?.weatherMain?.temp ?? 0))
         locationManager.stopUpdatingLocation()
         
         var refbd: DocumentReference? = nil
@@ -329,6 +330,10 @@ extension ViewController: UINavigationControllerDelegate, UIImagePickerControlle
                             guard let weatherIcon = wheather?.weatherWeather?[0].icon else {return} //Обращение идет к первому элементу массива, а в жтом массиве лежит словарь из JSON, поэтому мы не останавливаемся на элементе массива, апродолжаем проваливаться дальше через точку, т.е. [0].ключ из JSON
                             print("WheatherIcon = \(weatherIcon)")
                             self.getIconWeather(partURL: weatherIcon)
+                            
+                            //Теперь мы знаем погоду и можем запросить картинку с соотвествующей температурой
+                            self.fetchPictureWithTemp()
+                            
                         }
                     case .failure(let error):
                         print(error.errorDescription ?? "Unknown error")
@@ -356,12 +361,66 @@ extension ViewController: UINavigationControllerDelegate, UIImagePickerControlle
             }
         }.resume()
     }
-    
     //Конец иконки погоды
     
+    //Делатю запрос к Firebase с целью найти картинку с одинаковой температурой
+    private func fetchPictureWithTemp(){
+        let db = Firestore.firestore()
+        //let allFields = db.collection("users").whereField("temp", isEqualTo: true)
+        db.collection("users").getDocuments() { (querySnapshot, err) in
+            if let err = err {
+                print("Error getting documents: \(err)")
+            } else {
+                var urlPicturesTmp = ""
+                var urlPictures: String //Сюда поместим url выбранной картинки
+                var equalTemp: Int
+                equalTemp = Int(self.w?.weatherMain?.temp ?? 0)
+                print("equalTemp = \(equalTemp)")
+                for document in querySnapshot!.documents {
+                    print("На-ка, а как достать температуру?")
+                    for value in document.data() as Dictionary<String, Any> {
+                        if value.key == "url" {
+                            urlPicturesTmp = value.value as? String ?? ""
+                            print(urlPicturesTmp)
+                        }
+                        if value.key == "temp" {
+                            print(value.value)
+                            let tmpTemp = value.value as? Int
+                            print("tmpTemp = \(tmpTemp!)")
+                            if tmpTemp == equalTemp || tmpTemp == (equalTemp+1) || tmpTemp == (equalTemp-1) {
+                                urlPictures = urlPicturesTmp
+                                print("ИТАК:")
+                                print("URL = \(urlPictures)")
+                                print("Temp картинки = \(tmpTemp)")
+                                print("Temp текущий = \(equalTemp)")
+                                
+                                //Теперь у нас есть подходящая картика и можно подгрузить url в ImageView
+                                self.getPictureWeather(urlPictures: urlPictures)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    //Получаю картинку с похожей погодой
+    private func getPictureWeather(urlPictures: String) {
+        
+        guard let url = URL(string: urlPictures) else {return}
+        print("URL = \(url)")
+        let session = URLSession.shared
     
-    
-    
+        session.dataTask(with: url) { (data, response, error) in
+            if let date = data, let image = UIImage(data: date) {
+                DispatchQueue.main.async {
+                    //self.activitiIndicator.stopAnimating()
+                    //self.imageViewIconWeather.image = image
+                    self.imageAreaPicture.image = image
+                }
+            }
+        }.resume()
+    }
+    //Конец картинки с похожей погодой
 }
 
 
