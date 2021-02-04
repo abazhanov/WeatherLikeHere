@@ -20,24 +20,30 @@ import Alamofire
 class ViewController: UIViewController, CLLocationManagerDelegate {
 
     
+    
+    @IBOutlet weak var namePlace: UILabel!
     @IBOutlet weak var latitudeTF: UILabel!
     @IBOutlet weak var longitudeTF: UILabel!
     @IBOutlet weak var tempTF: UILabel!
     @IBOutlet weak var cityTF: UILabel!
     @IBOutlet weak var imageViewIconWeather: UIImageView!
-    
+    @IBOutlet weak var mainInfoView: UIView!
     @IBOutlet weak var imageAreaPicture: UIImageView!
-    
-    
-    
+    @IBOutlet weak var viewPlace: UIView!
     @IBOutlet weak var imageArea: UIImageView!
     
-    //let locationManager = CLLocationManager()
-
     var locationManager:CLLocationManager!
-    
     var w: Weather? = nil //Глобальная перменная для объекта Погоды
     var weatherIsGet = 0; //Эта переменная 0 или 1, говорит о том, что 0 - запрос на погоду не сделал, 1 - сделан
+    
+    struct Picture{
+        var lon: Double?
+        var lat: Double?
+        var temp: Double?
+        var distance: Double?
+        var url: String?
+        var place: String?
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -48,6 +54,11 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
+        
+        mainInfoView.layer.cornerRadius = 25
+        viewPlace.layer.cornerRadius = 25
+        
+        viewPlace.isHidden = true
         
         locationManager = CLLocationManager()
             locationManager.delegate = self
@@ -229,6 +240,7 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
         refbd = db.collection("users").addDocument(data: [
             "longitude": Double(longitudeTF.text!),
             "latitude": Double(latitudeTF.text!),
+            "Place": cityTF.text,
             "born": 1815,
             "dateExample": Timestamp(date: Date()),
             "temp": temp,
@@ -363,48 +375,93 @@ extension ViewController: UINavigationControllerDelegate, UIImagePickerControlle
     }
     //Конец иконки погоды
     
-    //Делатю запрос к Firebase с целью найти картинку с одинаковой температурой
+    //Делаю запрос к Firebase с целью найти картинку с одинаковой температурой
     private func fetchPictureWithTemp(){
         let db = Firestore.firestore()
         //let allFields = db.collection("users").whereField("temp", isEqualTo: true)
-        db.collection("users").getDocuments() { (querySnapshot, err) in
+        db.collection("users").getDocuments() { [self] (querySnapshot, err) in
+            var newPicture = Picture()
+            var PictureIsGet = false
             if let err = err {
                 print("Error getting documents: \(err)")
             } else {
-                var urlPicturesTmp = ""
-                var urlPictures: String //Сюда поместим url выбранной картинки
-                var equalTemp: Int
-                equalTemp = Int(self.w?.weatherMain?.temp ?? 0)
+                var equalTemp: Double // Сюда кладем текущую температуру
+                equalTemp = self.w?.weatherMain?.temp as! Double
+                var tmpPicture = Picture()
                 print("equalTemp = \(equalTemp)")
+                print("Запускаем главный цикл: перебор по записям")
+                print("Количество документов = \(querySnapshot!.documents.count)")
+                var i=1
                 for document in querySnapshot!.documents {
-                    print("На-ка, а как достать температуру?")
+                    print("Обрабатываем документ номер: \(i)")
+                    i += 1
+                    
+                    //Небольшой рефакторинг. Хочу просто вынуть из элемента массива все ключи, потом если температура соотвествует текущей, сравнить значение дистанции (между текущей точкой и из элемента массива) со значением из объекта newPicture.distance. И если значение больше, то заполнить объект newPicture() новыми значениями из текущего элемента массива.
+                    //Сначала вынимаем значения всех ключей
                     for value in document.data() as Dictionary<String, Any> {
-                        if value.key == "url" {
-                            urlPicturesTmp = value.value as? String ?? ""
-                            print(urlPicturesTmp)
-                        }
-                        if value.key == "temp" {
-                            print(value.value)
-                            let tmpTemp = value.value as? Int
-                            print("tmpTemp = \(tmpTemp!)")
-                            if tmpTemp == equalTemp || tmpTemp == (equalTemp+1) || tmpTemp == (equalTemp-1) {
-                                urlPictures = urlPicturesTmp
-                                print("ИТАК:")
-                                print("URL = \(urlPictures)")
-                                print("Temp картинки = \(tmpTemp)")
-                                print("Temp текущий = \(equalTemp)")
-                                
-                                //Теперь у нас есть подходящая картика и можно подгрузить url в ImageView
-                                self.getPictureWeather(urlPictures: urlPictures)
-                            }
+                        //print("В цикле value")
+                        switch value.key {
+                        case "Place":
+                            tmpPicture.place = value.value as? String
+                        case "latitude":
+                            tmpPicture.lat = value.value as? Double
+                        case "longitude":
+                            tmpPicture.lon = value.value as? Double
+                        case "temp":
+                            tmpPicture.temp = value.value as? Double
+                        case "url":
+                            tmpPicture.url = value.value as? String
+                        default:
+                            print ("Default")
                         }
                     }
-                }
-            }
+                    print(tmpPicture)
+                    //Т.е. мы пробежались по всем элементам словаря из этого элемента массива. Теперь нам нужно перед тем как брать новый элемент массива, сравнить температру из элемента массива с текущей и проверить что дистанция от текущего места до картинки/ Если дистанция больше, то мы значеними из этого эдемент амассива заполняем объект newPicture()
+                    
+                    print("шаг 0")
+                    
+                    if Int(tmpPicture.temp!) == lround(equalTemp) || Int(tmpPicture.temp!) == lround((equalTemp+1)) || Int(tmpPicture.temp!) == lround((equalTemp-1)) {
+                        //Итак, мы понимаем, что у нас есть картинка, которая имеет схожую температуру
+                        //Если дистанция между текущей точкой и точкой картинки больше или равна 0, то мы пишем значения в конечный объект newPicture()
+                        let lon1 = Double(self.longitudeTF.text!)!
+                        let lat1 = Double(self.latitudeTF.text!)!
+                        if getDistanceFromLatLonInKm(lat1: lat1, lon1: lon1, lat2: tmpPicture.lat!, lon2: tmpPicture.lon!) >= 0 {
+                            newPicture.temp = tmpPicture.temp
+                            newPicture.lat = tmpPicture.lat
+                            newPicture.lon = tmpPicture.lon
+                            newPicture.url = tmpPicture.url
+                            newPicture.place = tmpPicture.place
+                            newPicture.distance = tmpPicture.distance
+                            PictureIsGet = true
+                        }
+                        print("шаг 1/ Это значит что я внутри if с проверкой температуры")
+                    }
+                    print("2")
+                } //Конец цикла где мы перебираем элементы массива (записи из документа)
+                print("3")
+            } //Конец цикла всего среза документов
+            
+                
+            print("Это должна быть последняя запись")
+            //Теперь из объекта Picture достаем данные самой дальней картинки
+            print("ИТАК:")
+            print("URL = \(newPicture.url)")
+            print("Temp картинки = \(newPicture.temp)")
+            //print("Temp текущий = \(equalTemp)")
+            print("Дистанция: \(newPicture.distance)")
+                
+
+            //Теперь у нас есть подходящая картика и можно подгрузить url в ImageView
+            //А может картинки и нет тогда идем нафиг
+            if PictureIsGet {
+                getPictureWeather(urlPictures: newPicture.url!, place: newPicture.place!)
+            } else {return}
         }
     }
+    
+
     //Получаю картинку с похожей погодой
-    private func getPictureWeather(urlPictures: String) {
+    private func getPictureWeather(urlPictures: String, place: String) {
         
         guard let url = URL(string: urlPictures) else {return}
         print("URL = \(url)")
@@ -416,11 +473,47 @@ extension ViewController: UINavigationControllerDelegate, UIImagePickerControlle
                     //self.activitiIndicator.stopAnimating()
                     //self.imageViewIconWeather.image = image
                     self.imageAreaPicture.image = image
+                    print("place = \(place)")
+                    if place != "" {
+                        self.namePlace.text = "Эта фотография сделана в месте: \(place)"
+                        self.viewPlace.isHidden = false
+                    }
                 }
             }
         }.resume()
     }
     //Конец картинки с похожей погодой
+    
+    
+    
+    // Вычисление расстояния между двумя координатами
+    func getDistanceFromLatLonInKm(lat1: Double, lon1: Double, lat2: Double, lon2:Double) -> Double {
+        let R:Double = 6371
+        let dLat = deg2rad(deg: lat2 - lat1)
+        let dLon = deg2rad(deg: lon2 - lon1)
+        let a = sin(dLat/2) * sin(dLat/2) + cos(deg2rad(deg: lat1)) * cos(deg2rad(deg: lat2)) * sin(dLon/2) * sin(dLon/2)
+
+        let c = 2 * atan2(sqrt(a), sqrt(1-a))
+        let d = R * c // Distance in km
+      return d
+    }
+
+    private func deg2rad(deg: Double) -> Double {
+        return deg * (.pi/180)
+    }
+    
+    
+    @IBAction func typeToHidden(_ sender: UIButton) {
+        if mainInfoView.isHidden == true {
+            mainInfoView.isHidden = false
+            viewPlace.isHidden = false
+        } else {
+            mainInfoView.isHidden = true
+            //namePlace.isHidden = true
+            viewPlace.isHidden = true
+        }
+    }
+    
 }
 
 
