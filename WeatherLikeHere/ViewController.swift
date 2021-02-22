@@ -73,8 +73,8 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
         locationManager.startUpdatingLocation()
         let imagePickerController = UIImagePickerController()
         imagePickerController.delegate = self
-        imagePickerController.sourceType = .photoLibrary
-        //imagePickerController.sourceType = .camera
+        //imagePickerController.sourceType = .photoLibrary
+        imagePickerController.sourceType = .camera
         present(imagePickerController, animated: true, completion: nil)
         //savePhoto()
     }
@@ -157,7 +157,7 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
         
     }
     
-    //Вот здесь я получаю координа GPS
+    //Вот здесь я получаю координаты GPS
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
             let userLocation:CLLocation = locations[0] as CLLocation
 
@@ -392,6 +392,11 @@ extension ViewController: UINavigationControllerDelegate, UIImagePickerControlle
                 print("Запускаем главный цикл: перебор по записям")
                 print("Количество документов = \(querySnapshot!.documents.count)")
                 var i=1
+                
+                let lon1 = Double(self.longitudeTF.text!)!
+                let lat1 = Double(self.latitudeTF.text!)!
+                
+                
                 for document in querySnapshot!.documents {
                     print("Обрабатываем документ номер: \(i)")
                     i += 1
@@ -400,11 +405,14 @@ extension ViewController: UINavigationControllerDelegate, UIImagePickerControlle
                     //Сначала вынимаем значения всех ключей
                     for value in document.data() as Dictionary<String, Any> {
                         //print("В цикле value")
+                        
                         switch value.key {
                         case "Place":
                             tmpPicture.place = value.value as? String
                         case "latitude":
                             tmpPicture.lat = value.value as? Double
+                            //guard var b = tmpPictureLat
+                            //print ("b = \(b)")
                         case "longitude":
                             tmpPicture.lon = value.value as? Double
                         case "temp":
@@ -412,33 +420,48 @@ extension ViewController: UINavigationControllerDelegate, UIImagePickerControlle
                         case "url":
                             tmpPicture.url = value.value as? String
                         default:
-                            print ("Default")
+                            print ("Не нужный ключ из документа")
                         }
                     }
-                    print(tmpPicture)
+                    guard let tmpLat = tmpPicture.lat else {continue}
+                    guard let tmpLon = tmpPicture.lon else {continue}
+                   
+                    tmpPicture.distance = getDistanceFromLatLonInKm(lat1: lat1, lon1: lon1, lat2: tmpPicture.lat!, lon2: tmpPicture.lon!)
+                    print("tmpPicture.distance = \(tmpPicture.distance)")
+                    guard let tmpDistance = tmpPicture.distance else {continue}
+                  
+                    //print("tmpPicture = \(tmpPicture)")
                     //Т.е. мы пробежались по всем элементам словаря из этого элемента массива. Теперь нам нужно перед тем как брать новый элемент массива, сравнить температру из элемента массива с текущей и проверить что дистанция от текущего места до картинки/ Если дистанция больше, то мы значеними из этого эдемент амассива заполняем объект newPicture()
                     
-                    print("шаг 0")
+                    //print("шаг 0")
                     
                     if Int(tmpPicture.temp!) == lround(equalTemp) || Int(tmpPicture.temp!) == lround((equalTemp+1)) || Int(tmpPicture.temp!) == lround((equalTemp-1)) {
                         //Итак, мы понимаем, что у нас есть картинка, которая имеет схожую температуру
                         //Если дистанция между текущей точкой и точкой картинки больше или равна 0, то мы пишем значения в конечный объект newPicture()
-                        let lon1 = Double(self.longitudeTF.text!)!
-                        let lat1 = Double(self.latitudeTF.text!)!
-                        if getDistanceFromLatLonInKm(lat1: lat1, lon1: lon1, lat2: tmpPicture.lat!, lon2: tmpPicture.lon!) >= 0 {
+//                        let lon1 = Double(self.longitudeTF.text!)!
+//                        let lat1 = Double(self.latitudeTF.text!)!
+                        print("newPicture.distance = \(newPicture.distance)")
+                        if tmpDistance >= 0 || getDistanceFromLatLonInKm(lat1: lat1, lon1: lon1, lat2: tmpLat, lon2: tmpLon) > newPicture.distance ?? 0 {
+                            
+                            let sumDistanceForPrint = "sumDistanceForPrint: дистанция от текущей точки до картинки - " + String(getDistanceFromLatLonInKm(lat1: lat1, lon1: lon1, lat2: tmpLat, lon2: tmpLon)) + " и с чем сравниваем: " + String(newPicture.distance ?? 0)
+                            print(sumDistanceForPrint)
+                            
                             newPicture.temp = tmpPicture.temp
                             newPicture.lat = tmpPicture.lat
                             newPicture.lon = tmpPicture.lon
                             newPicture.url = tmpPicture.url
                             newPicture.place = tmpPicture.place
-                            newPicture.distance = tmpPicture.distance
+                            newPicture.distance = tmpDistance
                             PictureIsGet = true
+                        
+                            //print (getDistanceFromLatLonInKm(lat1: lat1, lon1: lon1, lat2: tmpPicture.lat!, lon2: tmpPicture.lon!))
+                            //print("шаг 0.5/ Это значит что я внутри if со сравнением дистанции")
                         }
-                        print("шаг 1/ Это значит что я внутри if с проверкой температуры")
+                        //print("шаг 1/ Это значит что я внутри if с проверкой температуры")
                     }
-                    print("2")
+                    //print("шаг 2")
                 } //Конец цикла где мы перебираем элементы массива (записи из документа)
-                print("3")
+                //print("шаг 3")
             } //Конец цикла всего среза документов
             
                 
@@ -506,7 +529,9 @@ extension ViewController: UINavigationControllerDelegate, UIImagePickerControlle
     @IBAction func typeToHidden(_ sender: UIButton) {
         if mainInfoView.isHidden == true {
             mainInfoView.isHidden = false
-            viewPlace.isHidden = false
+            if namePlace.text != "Label" {
+                viewPlace.isHidden = false
+            }
         } else {
             mainInfoView.isHidden = true
             //namePlace.isHidden = true
