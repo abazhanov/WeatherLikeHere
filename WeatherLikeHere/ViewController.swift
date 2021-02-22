@@ -538,6 +538,7 @@ extension ViewController: UINavigationControllerDelegate, UIImagePickerControlle
             viewPlace.isHidden = true
         }
     }
+ 
     
 }
 
