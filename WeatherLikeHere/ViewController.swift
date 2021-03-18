@@ -33,7 +33,7 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
     var locationManager:CLLocationManager!
     var w: Weather? = nil //Глобальная перменная для объекта Погоды
     var weatherIsGet = 0; //Эта переменная 0 или 1, говорит о том, что 0 - запрос на погоду не сделал, 1 - сделан
-    let a = 0
+    let b = 0
     
     
     struct Picture{
