@@ -29,12 +29,11 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
     @IBOutlet weak var imageAreaPicture: UIImageView!
     @IBOutlet weak var viewPlace: UIView!
     @IBOutlet weak var imageArea: UIImageView!
+    @IBOutlet weak var loadStatus: UILabel!
     
     var locationManager:CLLocationManager!
     var w: Weather? = nil //Глобальная перменная для объекта Погоды
     var weatherIsGet = 0; //Эта переменная 0 или 1, говорит о том, что 0 - запрос на погоду не сделал, 1 - сделан
-    let b = 0
-    
     
     struct Picture{
         var lon: Double?
@@ -47,6 +46,7 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
         let authUser = authAnonim()
         print("Результат авторизации viewDidLoad: \(authUser)")
         //getWeather()
@@ -59,14 +59,15 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
         viewPlace.layer.cornerRadius = 25
         
         viewPlace.isHidden = true
+        loadStatus.text = "Определяем координаты"
         
         locationManager = CLLocationManager()
-            locationManager.delegate = self
-            locationManager.desiredAccuracy = kCLLocationAccuracyBest
-            locationManager.requestAlwaysAuthorization()
+        locationManager.delegate = self
+        locationManager.desiredAccuracy = kCLLocationAccuracyBest
+        locationManager.requestAlwaysAuthorization()
         
-            checkLocationEnabled()
-            checkAutorization()
+        checkLocationEnabled()
+        checkAutorization()
     }
 
     @IBAction func addPhoto(_ sender: Any) {  //Выбираем фотографию
@@ -78,7 +79,20 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
         present(imagePickerController, animated: true, completion: nil)
         //savePhoto()
     }
-
+    
+    @IBAction func typeToHidden(_ sender: UIButton) {
+        if mainInfoView.isHidden == true {
+            mainInfoView.isHidden = false
+            if namePlace.text != "Label" {
+                viewPlace.isHidden = false
+            }
+        } else {
+            mainInfoView.isHidden = true
+            //namePlace.isHidden = true
+            viewPlace.isHidden = true
+        }
+    }
+ 
     //Проверяем включена ли на устройстве геолокация
     func checkLocationEnabled() {
         if CLLocationManager.locationServicesEnabled() {
@@ -86,7 +100,6 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
             print("Геолокация разрешена")
             //Пробую получить координаты
             locationManager.startUpdatingLocation()
-            
         } else {
             let alert = UIAlertController(title: "Отключена функция геолокации", message: "Включить?", preferredStyle: .alert)
             
@@ -95,6 +108,7 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
                     UIApplication.shared.open(url, options: [:], completionHandler: nil)
                 }
             }
+            
             let cancelAction = UIAlertAction(title: "Отмена", style: .cancel, handler: nil)
             
             alert.addAction(settingsAction)
@@ -104,17 +118,6 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
             
         }
     }
-    
-//    func test(){
-//        var locationManager = CLLocationManager()
-//            locationManager.delegate = self
-//            locationManager.desiredAccuracy = kCLLocationAccuracyBest
-//            locationManager.requestAlwaysAuthorization()
-//
-//            if CLLocationManager.locationServicesEnabled(){
-//                locationManager.startUpdatingLocation()
-//            }
-//    }
     
     //Проверяем есть ли у нашего приложения разрешения на получение геолокации
     func checkAutorization(){
@@ -161,11 +164,6 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
             let userLocation:CLLocation = locations[0] as CLLocation
 
-            // Call stopUpdatingLocation() to stop listening for location updates,
-            // other wise this function will be called every time when user location changes.
-
-           // manager.stopUpdatingLocation()
-
             print("user latitude = \(userLocation.coordinate.latitude)")
             latitudeTF.text = String(userLocation.coordinate.latitude)
             print("user longitude = \(userLocation.coordinate.longitude)")
@@ -173,6 +171,7 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
         
             //Получили координаты, теперь можно и погоду запросить если только уже не запрашивали
             if weatherIsGet==0 {
+                loadStatus.text = "Запрашиваю погоду"
                 getWeather(lat: userLocation.coordinate.latitude, lon: userLocation.coordinate.longitude)
                 weatherIsGet = 1
             }
@@ -185,7 +184,6 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
    
     func authAnonim() -> String {
         let uid = ""
-        
         Auth.auth().signInAnonymously() { (authResult, error) in
             guard authResult != nil else {
                 print("Результата авторизации нет!")
@@ -204,7 +202,6 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
     }//END func authAnonim()
     
     func savePhoto() -> Bool {
-        
         // Сначала нужно авторизоваться и уже внутри замыкания авторизации делать запись в БД
         Auth.auth().signInAnonymously() { (authResult, error) in
             guard authResult != nil else {
@@ -228,8 +225,6 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
     
     // Здесь записываем в БД данные: координаты, температуру, URL картинки и т.д.
     func saveData(url: String) -> () {
-        //
-        
         //print("tempTF.text = \(tempTF.text!)")
         let temp = lroundf(Float(w?.weatherMain?.temp ?? 0))
         //let temp = lroundf(Float(wheather?.weatherMain?.temp ?? 0))
@@ -253,6 +248,14 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
             }
         }
     }
+    
+    
+// MARK: Попытка рефакторинга кода, пока считаем это условно не рабочим
+    private func fetchPictureWithTemp2() {
+        
+    }
+    
+    
 } //END MAIN CLASS
 
 // MARK: - UIImagePickerControllerDelegate
@@ -263,7 +266,6 @@ extension ViewController: UINavigationControllerDelegate, UIImagePickerControlle
         guard let image = info[UIImagePickerController.InfoKey.originalImage] as? UIImage else { return }
         //photoImageView.image = image
         imageArea.image = image
-        
         
         //Попытка записать картинку в БД
         //Проверяем авторизацию
@@ -377,6 +379,7 @@ extension ViewController: UINavigationControllerDelegate, UIImagePickerControlle
     
     //Делаю запрос к Firebase с целью найти картинку с одинаковой температурой
     private func fetchPictureWithTemp(){
+        loadStatus.text = "Ищем подходящую фотографию"
         let db = Firestore.firestore()
         //let allFields = db.collection("users").whereField("temp", isEqualTo: true)
         db.collection("users").getDocuments() { [self] (querySnapshot, err) in
@@ -395,7 +398,6 @@ extension ViewController: UINavigationControllerDelegate, UIImagePickerControlle
                 
                 let lon1 = Double(self.longitudeTF.text!)!
                 let lat1 = Double(self.latitudeTF.text!)!
-                
                 
                 for document in querySnapshot!.documents {
                     print("Обрабатываем документ номер: \(i)")
@@ -480,6 +482,7 @@ extension ViewController: UINavigationControllerDelegate, UIImagePickerControlle
                 getPictureWeather(urlPictures: newPicture.url!, place: newPicture.place!)
             } else {return}
         }
+        
     }
     
 
@@ -526,18 +529,18 @@ extension ViewController: UINavigationControllerDelegate, UIImagePickerControlle
     }
     
     
-    @IBAction func typeToHidden(_ sender: UIButton) {
-        if mainInfoView.isHidden == true {
-            mainInfoView.isHidden = false
-            if namePlace.text != "Label" {
-                viewPlace.isHidden = false
-            }
-        } else {
-            mainInfoView.isHidden = true
-            //namePlace.isHidden = true
-            viewPlace.isHidden = true
-        }
-    }
+//    @IBAction func typeToHidden(_ sender: UIButton) {
+//        if mainInfoView.isHidden == true {
+//            mainInfoView.isHidden = false
+//            if namePlace.text != "Label" {
+//                viewPlace.isHidden = false
+//            }
+//        } else {
+//            mainInfoView.isHidden = true
+//            //namePlace.isHidden = true
+//            viewPlace.isHidden = true
+//        }
+//    }
  
     
 }
